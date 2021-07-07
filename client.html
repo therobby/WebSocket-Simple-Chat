@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Websocket test</title>
+        <script defer>
+            let ws = new WebSocket("ws://localhost:8008");
+            let nickname = "";
+
+            ws.onmessage = (message) => {
+                if (nickname) {
+                    let gc = document.getElementById("globalChat");
+                    gc.value += "\n" + message.data;
+                    gc.scrollTop = gc.scrollHeight;
+                }
+            };
+
+            function send() {
+                if (nickname) {
+                    ws.send(
+                        JSON.stringify({
+                            message:
+                                document.getElementById("userMessage").value,
+                        })
+                    );
+                    document.getElementById("userMessage").value = "";
+                }
+            }
+
+            function setNickname() {
+                let nn = document.getElementById("userNickname").value;
+                if (nn) {
+                    nickname = nn;
+                    ws.send(JSON.stringify({ nickname: nickname }));
+                    document.getElementById("userMessage").disabled = false;
+                    document.getElementById("sendMessage").disabled = false;
+                }
+            }
+
+            function messageEnterClicked(e) {
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    send();
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Websocket Chat Test</h1>
+
+        <input type="text" id="userNickname" />
+        <button id="sendNickname" onclick="setNickname()">Set Nickname</button>
+        <br />
+        <br />
+        <textarea id="globalChat" readonly style="width: 250px; height: 100px">
+        </textarea>
+        <br />
+        <input
+            type="text"
+            id="userMessage"
+            onkeyup="messageEnterClicked(event)"
+            disabled
+        />
+        <button id="sendMessage" onclick="send()" disabled>Send =></button>
+    </body>
+</html>
